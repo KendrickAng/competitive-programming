@@ -1,0 +1,26 @@
+80
+This #post has hashtag #b 5 times, #b #b #b #b
+
+0
+This is a #post
+
+60
+This #post has hashtags #a #b and #c
+
+220
+This is for the time #window
+
+200
+This #post again has hashtag #b 3 times #b #b but happens in a time #window
+
+210
+This #post is for the time #window
+
+220
+This is for the time #window
+
+240
+Now in this time #window people like talking about windows
+
+20
+This is another #post where I say how #happy I am
