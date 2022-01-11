@@ -1,0 +1,23 @@
+{
+    "files.associations": {
+        "ostream": "cpp",
+        "iostream": "cpp",
+        "*.tcc": "cpp",
+        "string": "cpp",
+        "future": "cpp",
+        "istream": "cpp",
+        "system_error": "cpp",
+        "deque": "cpp",
+        "list": "cpp",
+        "unordered_map": "cpp",
+        "unordered_set": "cpp",
+        "vector": "cpp",
+        "forward_list": "cpp",
+        "cmath": "cpp",
+        "complex": "cpp",
+        "array": "cpp",
+        "regex": "cpp",
+        "bitset": "cpp",
+        "tuple": "cpp"
+    }
+}
