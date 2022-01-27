@@ -1,0 +1,22 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+using iii = tuple<int,int,int>;
+
+struct Birthdate {
+    int day;
+    int month;
+    int year;
+};
+
+int main() {
+    vector<int> input = {{01,01,2020},{10,10,1997}};
+    vector<Birthdate> dates;
+    for (auto [d,m,y]: input) dates.push_back({d,m,y});
+    sort(dates.begin(), dates.end(), [](Birthdate &a, Birthdate &b) {
+         if (a.d != b.d) return a.d < b.d;
+         else if (a.m != b.m) return a.m < b.m;
+         else return a.y < b.y;
+    });
+    for (auto )
+}

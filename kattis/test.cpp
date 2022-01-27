@@ -1,17 +1,8 @@
-#include <iostream>
-#include <unordered_map>
-#include <string>
+#include <bits/stdc++.h>
 
 using namespace std;
 
 int main() {
-    struct Hash {
-        hash<int> hasher;
-        size_t seed = 0;
-        size_t operator()(pair<int,int> p) {
-            seed ^= hasher(p.first);
-            return seed;
-        }
-    };
-    unordered_map<pair<int,int>, int, Hash> map;
+    double d = 42000000.01;
+    cout << fixed << setprecision(10) << ceil(d) << endl;
 }
