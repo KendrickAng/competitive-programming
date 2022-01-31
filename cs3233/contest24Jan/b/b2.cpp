@@ -24,7 +24,10 @@ void solve() {
         ll ans = 0;
         for (int end = 1; end < cumSum.size(); end++) {
             for (int start = 0; start < end; start++) {
-                if (cumSum[end] - cumSum[start] >= x) ans++;
+                if (cumSum[end] - cumSum[start] >= x)  {
+                    ans++;
+                    cout << "start " << start << " end " << end << endl;
+                }
             }
         }
         if (first) first = false;

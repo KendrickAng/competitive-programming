@@ -19,6 +19,15 @@
         "regex": "cpp",
         "bitset": "cpp",
         "tuple": "cpp",
-        "random": "cpp"
+        "random": "cpp",
+        "any": "cpp",
+        "exception": "cpp",
+        "limits": "cpp",
+        "new": "cpp",
+        "optional": "cpp",
+        "stdexcept": "cpp",
+        "functional": "cpp",
+        "typeinfo": "cpp",
+        "variant": "cpp"
     }
 }

@@ -1,4 +1,4 @@
-#pragma GCC optimize("O3")
+#pragma GCC optimize("O2")
 #include <bits/stdc++.h>
 
 using namespace std;
@@ -28,79 +28,86 @@ public:
     int rsq(int i, int j) { // [i, j]
         return rsq(j) - rsq(i-1);
     }
-    void reset() {
-        tree.assign(size, 0);
-    }
 };
 
-ll countLte(FenwickTree &ft, vector<ll> &revMapping, unordered_map<ll, int> &revMapping2, ll &toFind) {
-    if (revMapping2.find(toFind) != revMapping2.end()) {
-        return ft.rsq(revMapping2[toFind]);
-    }
-
-    auto it = upper_bound(revMapping.begin(), revMapping.end(), toFind);
-    if (it == revMapping.begin() && toFind < *it) return 0;
+ll countLte(FenwickTree &ft, vector<ll> &sum, map<ll,int> &revMapping, ll toFind) {
+    // var(toFind);
+    auto it = revMapping.upper_bound(toFind);
+    if (it == revMapping.begin() && toFind < it->first) return 0;
     if (it != revMapping.begin()) it--;
-    int idx = (it - revMapping.begin()) + 1;
+    int idx = it->second;
     // cout << "toFind " << toFind << " idx " << idx << " count " << ft.rsq(idx) << endl;
-
     return ft.rsq(idx);
 }
 
 void solve() {
-    int n, q; scanf("%d%d", &n, &q);
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+
+    int n, q; cin >> n >> q;
     
     // read input and create cumulative sum
     ll sofar = 0;
     vector<ll> sum;
-    set<ll> sumCopy;
     for (int i = 0; i < n; i++) {
         int tmp; cin >> tmp;
         sofar += tmp;
         sum.push_back(sofar);
-
-        // for coordinate compression
-        sumCopy.insert(sofar);
     }
+
+    // coordinate compression
+    bool addZero = false;
+    vector<ll> sumCopy(sum);
+    sort(sumCopy.begin(), sumCopy.end());
+    if (sumCopy[0] > 0) addZero = true;
+    
+    sumCopy.insert(sumCopy.begin(), 0);
+    
+    // for (int i: sumCopy) cout << i << ' '; cout << endl;
+
+    // remove duplicates
+    auto it = unique(sumCopy.begin(), sumCopy.end());
+    sumCopy.resize(distance(sumCopy.begin(), it));
 
     // create coordinate mappings
-    unordered_map<ll, int> revMapping2; revMapping2.reserve(sumCopy.size());
-    vector<ll> revMapping;
-    // map<ll, int> revMapping;
-    int id = 1;
-    for (ll num: sumCopy) {
-        revMapping.push_back(num);
-        revMapping2[num] = id++;
+    map<ll, int> revMapping;
+    for (int i = 1; i <= sumCopy.size(); i++) {
+        int num = sumCopy[i-1];
+        revMapping[num] = i;
     }
 
-    // prepare compressed fenwick tree
-    FenwickTree ft(n+1);
+    // for (auto [a, b]: revMapping) {
+    //     cout << "num " << a << " idx " << b << endl;
+    // }
+
+    // for (int i: sum) cout << i << ' '; cout << endl;
 
     // answer queries
     bool first = true;
     for (int i = 0; i < q; i++) {
-        ll k; scanf("%lld", &k);
+        ll k; cin >> k;
         ll ans = 0;
+
+        // prepare compressed fenwick tree
+        FenwickTree ft(n+1);
+        ft.update(revMapping[0], 1);
 
         // count how many sum[i] st sum[i] <= sum[j] - k, i < j
         for (int j = 0; j < sum.size(); j++) {
             ll toFind = sum[j] - k;
-
-            ans += countLte(ft, revMapping, revMapping2, toFind);
-            if (sum[j] >= k) ans++;
+            // var(toFind);
+            ans += countLte(ft, sum, revMapping, toFind);
 
             // update fenwick tree
-            int ftIdx = revMapping2[sum[j]];
+            int ftIdx = revMapping[sum[j]];
             ft.update(ftIdx, 1);
         }
 
         if (first) first = false;
-        else printf(" ");
-        printf("%lld", ans);
-
-        ft.reset();
+        else cout << ' ';
+        cout << ans;
     }
-    printf("\n");
+    cout << endl;
 }
 
 int main() {
