@@ -28,6 +28,7 @@
         "stdexcept": "cpp",
         "functional": "cpp",
         "typeinfo": "cpp",
-        "variant": "cpp"
+        "variant": "cpp",
+        "span": "cpp"
     }
 }
