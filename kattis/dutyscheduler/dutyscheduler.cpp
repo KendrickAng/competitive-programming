@@ -1,3 +1,4 @@
+#define NDEBUG
 #include <bits/stdc++.h>
 
 using namespace std;
@@ -30,9 +31,9 @@ void _print(T t, V... v) {__print(t); if (sizeof...(v)) cerr << ", "; _print(v..
 #endif
 
 using ll = long long;
-using ii = pair<int, int>;
 using edge = tuple<int, ll, ll>; // v, capacity, flow
 using vi = vector<int>;
+using ii = pair<int, int>;
 
 const ll INF = 1e18; // large enough
 
@@ -53,8 +54,8 @@ private:
 
     unordered_map<ii, int, pairHash> edgeMap;
 
-    int start; // start node
-    int end; // end node
+    int S; // start node
+    int T; // end node
     bool done = false; // have we run a single instance of max flow?
 
     bool BFS(int s, int t) { // find augmenting path
@@ -109,7 +110,8 @@ public:
     // ############################### MAXIMUM FLOW ###############################
 
     ll edmonds_karp(int s, int t) {
-        start = s; end = t;
+        S = s;
+        T = t;
         ll mf = 0;                      // mf stands for max_flow
         while (BFS(s, t)) {             // an O(V*E^2) algorithm
             ll f = send_one_flow(s, t); // find and send 1 flow f
@@ -121,7 +123,8 @@ public:
     }
 
     ll dinic(int s, int t) {
-        start = s; end = t;
+        S = s;
+        T = t;
         ll mf = 0;                      // mf stands for max_flow
         while (BFS(s, t)) {             // an O(V^2*E) algorithm
             last.assign(V, 0);          // important speedup
@@ -153,8 +156,8 @@ public:
         vector<int> nodes;
         vector<int> seen(V, false);
         queue<int> q;
-        q.push(start);
-        seen[start] = true;
+        q.push(S);
+        seen[S] = true;
         while (!q.empty()) {
             int u = q.front(); q.pop();
             nodes.push_back(u);
@@ -177,8 +180,8 @@ public:
         vector<pair<int,int>> edges;
         vector<int> seen(V, false);
         queue<int> q;
-        q.push(start);
-        seen[start] = true;
+        q.push(S);
+        seen[S] = true;
         while (!q.empty()) {
             int u = q.front(); q.pop();
 
@@ -262,110 +265,125 @@ public:
         for (int u = 0; u < V; u++) {
             for (int eIdx: AL[u]) { 
                 auto &[v, cap, flow] = EL[eIdx];
-                // ignore redundant edges
-                if (cap <= 0) continue;
-                cout << u << " -> " << v << " cap: " << cap << " flow: " << flow << endl;
+                if (cap == 0) continue;
+                string uStr = to_string(u);
+                string vStr = to_string(v);
+                if (u == S) uStr = "S";
+                if (u == T) uStr = "T";
+                if (v == S) vStr = "S";
+                if (v == T) vStr = "T";
+                cout << uStr << " -> " << vStr << " cap: " << cap << " flow: " << flow << endl;
             }
         }
+        cout << endl;
     }
 };
 
-int N;
-vector<int> teamPts;
-vector<vector<char>> results;
+int M, N, S, T, V;
 
-bool canWin(int currTeam) {
-    set<ii> games;
-    int ourMaxPts = teamPts[currTeam];
-    for (int i = 0; i < N; i++) {
-        for (int j = 0; j < N; j++) {
-            // possible match the current team can win
-            if (i < j) {
-                if (results[i][j] == '.') {
-                    if (i == currTeam || j == currTeam) {
-                        ourMaxPts += 2;
-                    } else {
-                        games.insert({i, j});
-                    }
-                }
-            }
+max_flow mf(0);
+unordered_map<string, int> nameMap;
+unordered_map<int, string> rNameMap;
+int nameId = 0;
+
+int changeName(const string &name) {
+    if (nameMap.find(name) == nameMap.end()) {
+        int id = N + nameId++;
+        nameMap[name] = id;
+        rNameMap[id] = name;
+    }
+    assert(nameMap[name] >= N and nameMap[name] < N+M);
+    return nameMap[name];
+}
+
+int changeDay(int day) {
+    assert(day-1 >= 0 and day-1 < N);
+    return day-1;
+}
+
+bool isOk(int maxDays) {
+    mf.reset();
+
+    for (int ra = N; ra < N+M; ra++) {
+        if (mf.hasEdge(S, ra)) {
+            mf.setEdgeCapacity(S, ra, maxDays);
         }
     }
 
-    // construct max flow graph
-    int V = 1 + games.size() + N + 1;
-    max_flow mf(V);
-
-    int id = N; // 0 to N reserved for teams
-    int source = id++;
-    int sink = id++;
-    // debug(source, sink);
-    
-    // source to games, games to teams
-    for (auto [teamA, teamB]: games) {
-        int mid = id++;
-        mf.add_edge(source, mid, 2);
-        mf.add_edge(mid, teamA, 2);
-        mf.add_edge(mid, teamB, 2);
+    ll flow = mf.dinic(S, T);
+    // debug(flow, maxDays, M, N);
+    if (flow == (2*N)) {
+        return true;
+    } else {
+        return false;
     }
-    // teams to sink
-    for (int teamId = 0; teamId < N; teamId++) {
-        if (teamId == currTeam) continue;
-
-        int buffer = ourMaxPts - teamPts[teamId];
-        if (buffer < 0) return false;
-        mf.add_edge(teamId, sink, buffer);
-    }
-
-    ll flow = mf.dinic(source, sink);
-    // mf.print();
-    // debug(currTeam, ourMaxPts, flow);
-    // debug(games);
-
-    return flow == (2 * games.size());
 }
 
 void solve() {
-    cin >> N;
-    teamPts.assign(N, 0);
-    results.assign(N, vector<char>(N));
+    cin >> M >> N;
 
-    // read match results
-    for (int i = 0; i < N; i++) {
-        for (int j = 0; j < N; j++) {
-            cin >> results[i][j];
+    // read in input
+    V = M + N + 2;
+    S = V-1;
+    T = V-2;
+    
+    // [0, N): days, [N, N+M): RA names
+    mf = max_flow(V);
+    // debug(V, S, T);
+    for (int i = 0; i < M; i++) {
+        string name;
+        int daysFree;
+        cin >> name >> daysFree;
+        int nameIdx = changeName(name);
+        // debug(nameIdx);
+        mf.add_edge(S, nameIdx, 0);
+        for (int j = 0; j < daysFree; j++) {
+            int day; cin >> day;
+            int dayIdx = changeDay(day);
+            // debug(nameIdx, dayIdx);
+            mf.add_edge(nameIdx, dayIdx, 1);
+        }
+    }
+    for (int day = 1; day <= N; day++) {
+        int dayIdx = changeDay(day);
+        mf.add_edge(dayIdx, T, 2);
+    }
+
+    int lo = 0;
+    int hi = N;
+    int last = -1;
+    while (lo <= hi) {
+        int mid = (lo+hi) / 2;
+        // debug(lo, hi, mid);
+        if (isOk(mid)) { // try with less days
+            hi = mid-1;
+            last = mid;
+        } else {
+            lo = mid+1;
         }
     }
 
-    // count points for each team
-    for (int i = 0; i < N; i++) {
-        for (int j = 0; j < N; j++) {
-            // competitors don't play themselves
-            // also all points are double to prevent 0.5
-            if (i < j) {
-                if (results[i][j] == 'x') continue;
-                else if (results[i][j] == '0') teamPts[j] += 2;
-                else if (results[i][j] == '1') teamPts[i] += 2;
-                else if (results[i][j] == 'd') {
-                    teamPts[i] += 1;
-                    teamPts[j] += 1;
+    // [0, N): days, [N, N+M): RA names
+    isOk(last);
+    cout << last << endl;
+    map<int, vector<string>> ans;
+    for (int ra = N; ra < N+M; ra++) {
+        for (int day = 0; day < N; day++) {
+            if (mf.hasEdge(ra, day)) {
+                auto &[v, cap, flow] = mf.getEdge(ra, day);
+                if (flow == 1) {
+                    ans[day+1].push_back(rNameMap[ra]);
                 }
             }
         }
     }
-
-    vector<int> ans;
-    for (int currTeam = 0; currTeam < N; currTeam++) {
-        // look through information
-        if (canWin(currTeam)) ans.push_back(currTeam);
+    for (auto [day, names]: ans) {
+        assert(names.size() == 2);
+        cout << "Day " << day << ": " << names[0] << " " << names[1] << endl;
     }
-
-    for (int i: ans) cout << i+1 << ' ';
-    cout << endl;
 }
 
 int main() {
     ios_base::sync_with_stdio(false); cin.tie(NULL);
-    int t; cin >> t;
-    while (t--) solve();
+    solve();
 }

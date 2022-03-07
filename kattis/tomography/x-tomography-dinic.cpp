@@ -30,9 +30,9 @@ void _print(T t, V... v) {__print(t); if (sizeof...(v)) cerr << ", "; _print(v..
 #endif
 
 using ll = long long;
-using ii = pair<int, int>;
 using edge = tuple<int, ll, ll>; // v, capacity, flow
 using vi = vector<int>;
+using ii = pair<int, int>;
 
 const ll INF = 1e18; // large enough
 
@@ -53,8 +53,8 @@ private:
 
     unordered_map<ii, int, pairHash> edgeMap;
 
-    int start; // start node
-    int end; // end node
+    int S; // start node
+    int T; // end node
     bool done = false; // have we run a single instance of max flow?
 
     bool BFS(int s, int t) { // find augmenting path
@@ -109,7 +109,8 @@ public:
     // ############################### MAXIMUM FLOW ###############################
 
     ll edmonds_karp(int s, int t) {
-        start = s; end = t;
+        S = s;
+        T = t;
         ll mf = 0;                      // mf stands for max_flow
         while (BFS(s, t)) {             // an O(V*E^2) algorithm
             ll f = send_one_flow(s, t); // find and send 1 flow f
@@ -121,7 +122,8 @@ public:
     }
 
     ll dinic(int s, int t) {
-        start = s; end = t;
+        S = s;
+        T = t;
         ll mf = 0;                      // mf stands for max_flow
         while (BFS(s, t)) {             // an O(V^2*E) algorithm
             last.assign(V, 0);          // important speedup
@@ -153,8 +155,8 @@ public:
         vector<int> nodes;
         vector<int> seen(V, false);
         queue<int> q;
-        q.push(start);
-        seen[start] = true;
+        q.push(S);
+        seen[S] = true;
         while (!q.empty()) {
             int u = q.front(); q.pop();
             nodes.push_back(u);
@@ -177,8 +179,8 @@ public:
         vector<pair<int,int>> edges;
         vector<int> seen(V, false);
         queue<int> q;
-        q.push(start);
-        seen[start] = true;
+        q.push(S);
+        seen[S] = true;
         while (!q.empty()) {
             int u = q.front(); q.pop();
 
@@ -262,110 +264,77 @@ public:
         for (int u = 0; u < V; u++) {
             for (int eIdx: AL[u]) { 
                 auto &[v, cap, flow] = EL[eIdx];
-                // ignore redundant edges
-                if (cap <= 0) continue;
-                cout << u << " -> " << v << " cap: " << cap << " flow: " << flow << endl;
+                if (cap == 0) continue;
+                string uStr = to_string(u);
+                string vStr = to_string(v);
+                if (u == S) uStr = "S";
+                if (u == T) uStr = "T";
+                if (v == S) vStr = "S";
+                if (v == T) vStr = "T";
+                cout << uStr << " -> " << vStr << " cap: " << cap << " flow: " << flow << endl;
             }
         }
+        cout << endl;
     }
 };
 
-int N;
-vector<int> teamPts;
-vector<vector<char>> results;
+int R, C;
 
-bool canWin(int currTeam) {
-    set<ii> games;
-    int ourMaxPts = teamPts[currTeam];
-    for (int i = 0; i < N; i++) {
-        for (int j = 0; j < N; j++) {
-            // possible match the current team can win
-            if (i < j) {
-                if (results[i][j] == '.') {
-                    if (i == currTeam || j == currTeam) {
-                        ourMaxPts += 2;
-                    } else {
-                        games.insert({i, j});
-                    }
-                }
-            }
-        }
-    }
+int getRIdx(int r) {
+    return r;
+}
 
-    // construct max flow graph
-    int V = 1 + games.size() + N + 1;
-    max_flow mf(V);
-
-    int id = N; // 0 to N reserved for teams
-    int source = id++;
-    int sink = id++;
-    // debug(source, sink);
-    
-    // source to games, games to teams
-    for (auto [teamA, teamB]: games) {
-        int mid = id++;
-        mf.add_edge(source, mid, 2);
-        mf.add_edge(mid, teamA, 2);
-        mf.add_edge(mid, teamB, 2);
-    }
-    // teams to sink
-    for (int teamId = 0; teamId < N; teamId++) {
-        if (teamId == currTeam) continue;
-
-        int buffer = ourMaxPts - teamPts[teamId];
-        if (buffer < 0) return false;
-        mf.add_edge(teamId, sink, buffer);
-    }
-
-    ll flow = mf.dinic(source, sink);
-    // mf.print();
-    // debug(currTeam, ourMaxPts, flow);
-    // debug(games);
-
-    return flow == (2 * games.size());
+int getCIdx(int c) {
+    return c + R;
 }
 
 void solve() {
-    cin >> N;
-    teamPts.assign(N, 0);
-    results.assign(N, vector<char>(N));
-
-    // read match results
-    for (int i = 0; i < N; i++) {
-        for (int j = 0; j < N; j++) {
-            cin >> results[i][j];
+    cin >> R >> C;
+    int V = R + C + 2;
+    int S = V-1;
+    int T = V-2;
+    // [0, R): rows
+    // [R, R+C): cols
+    max_flow mf(V);
+    for (int r = 0; r < R; r++) {
+        for (int c = 0; c < C; c++) {
+            mf.add_edge(getRIdx(r), getCIdx(c), 1);
         }
     }
+    // read row capacities
+    vector<ll> rows(R);
+    for (int i = 0; i < R; i++) {
+        int tmp; cin >> tmp;
+        rows[i] = tmp;
+        mf.add_edge(S, getRIdx(i), tmp);
+    }
+    // read col capacities
+    vector<ll> cols(C);
+    for (int i = 0; i < C; i++) {
+        int tmp; cin >> tmp;
+        cols[i] = tmp;
+        mf.add_edge(getCIdx(i), T, tmp);
+    }
 
-    // count points for each team
-    for (int i = 0; i < N; i++) {
-        for (int j = 0; j < N; j++) {
-            // competitors don't play themselves
-            // also all points are double to prevent 0.5
-            if (i < j) {
-                if (results[i][j] == 'x') continue;
-                else if (results[i][j] == '0') teamPts[j] += 2;
-                else if (results[i][j] == '1') teamPts[i] += 2;
-                else if (results[i][j] == 'd') {
-                    teamPts[i] += 1;
-                    teamPts[j] += 1;
-                }
-            }
+    mf.dinic(S, T);
+    for (int r = 0; r < R; r++) {
+        auto &[v, cap, flow] = mf.getEdge(S, getRIdx(r));
+        if (flow != rows[r]) {
+            cout << "No" << endl;
+            return;
         }
     }
-
-    vector<int> ans;
-    for (int currTeam = 0; currTeam < N; currTeam++) {
-        // look through information
-        if (canWin(currTeam)) ans.push_back(currTeam);
+    for (int c = 0; c < C; c++) {
+        auto &[v, cap, flow] = mf.getEdge(getCIdx(c), T);
+        if (flow != cols[c]) {
+            cout << "No" << endl;
+            return;
+        }
     }
-
-    for (int i: ans) cout << i+1 << ' ';
-    cout << endl;
+    cout << "Yes" << endl;
 }
 
 int main() {
     ios_base::sync_with_stdio(false); cin.tie(NULL);
-    int t; cin >> t;
-    while (t--) solve();
+    solve();
 }
