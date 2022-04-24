@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<title>Fleet Provisions Management</title>
+</head>
+
+<body>
+<h1>Fleet Provisions Management</h1>
+
+<p>Time Limit: 1s.<br>
+</p>
+
+<h2>Problem Description</h2>
+
+<p>The hunters of the world are preparing to capture the fabled Elder Dragon, Zorah Magdaros!</p>
+<p>
+    As the head logistics manager of the famed Fourth Logistics Fleet, you are put in charge of
+    ensuring there are enough potions to keep the hunters healthy! 
+    A capable manager as always, you quickly sourced the potions.
+</p>
+<p>
+    However, potions can't be kept in storage forever - they have an <i>initial integrity</i> 
+    which decreases at a constant <i>integrity decay rate</i> every day. 
+    Potions must have a positive, non-zero integrity to still be considered <i>usable</i>.
+    It's up to you to ensure you still have enough usable potions before the hunt begins!
+</p>
+<p>
+    Given <i>N</i>, the number of potions, <i>II</i> the initial integrity and <i>ID</i>, the integrity decay of each potion,
+    find the maximum number of days you can wait such that there still remains at least <i>I</i> potion items
+    that are usable.
+</p>
+
+<h2>Input</h2>
+
+<p>
+    The first line of input contains <b>T</b>, the number of test cases.<br>
+    This is followed by <b>T</b> test cases.<br>
+    Each test case is preceded by a blank line, followed by:
+    <ul>
+        <li>Two integers: <b>N</b> and <b>I</b>.</li>
+        <li>A line of <b>N</b> integers, each representing the initial integrity <b>II</b> of the <i>i</i>th potion item.</li>
+        <li>A line of <b>N</b> integers, each representing the integrity decay <b>ID</b> of the <i>i</i>th potion item.</li>
+    </ul>
+    The input will be terminated with an EOF.
+</p>
+
+<h2>Output</h2>
+
+<p>
+    For each test case, output a line containing a single integer: the maximum number of days such that there remains at least <i>I</i> usable potion items.
+</p>
+
+<div>
+    <b>Explanation of the first test case</b>
+    <ul>
+        <li>There are two potions.</li>
+        <li>The first has integrity 3 and decays by 1 integrity per day. </li>
+        <li>The second has integrity 4 and decays by 2 integrity per day.</li>
+        <li>We need at least two potions to remain usable. </li>
+        <li>After 1 day, both the first and second potions have 2 integrity left. </li>
+        <li>After 2 days, the first potion has integrity 1 but the second potion has 0 integrity, and becomes unusable - only 1 potion is left usable.</li>
+        <li>Hence the maximum number of days we can wait is 1.</li>
+    </ul>
+</div>
+
+<div>
+    <b>Explanation of the second test case</b>
+    <ul>
+        <li>There are three potions.</li>
+        <li>We need at least one potion to remain usable.</li>
+        <li>The maximum number of days we can wait is 4, where the potion with 5 initial integrity will still have 1 integrity left, and remains usable.</li>
+    </ul>
+</div>
+
+
+<h2>Sample Input</h2>
+
+<pre>
+4
+
+2 2
+3 4
+1 2
+
+3 1
+12 15 5
+3 7 1
+
+5 5
+1 2 3 4 5
+1 2 3 4 5
+
+3 2
+6 7 8
+2 3 5
+</pre>
+
+<h2>Sample Output</h2>
+
+<pre>
+1
+4
+0
+2
+</pre>
+
+<h2>Constraints</h2>
+
+<div>Number of test cases, <b>T</b>: 1 &le; <b>T</b> &le; 10</div>
+<div>Number of potion items <b>N</b> and potion items needed <b>I</b>: 1 &le; <b>I</b> &le; <b>N</b> &le; 10<sup>5</sup></div>
+<div>Item Integrity <b>II</b> and Item Decay <b>ID</b>: 1 &le; <b>ID</b> &le; <b>II</b> &le; 5*10<sup>18</sup></div>
+
+<h2>Problem Author</h2>
+
+<p>Ang Wei Heng Kendrick, CS3233 S2 AY2021/22.<br>
+Last used: Never.<br>
+</p>
+
+</body>
+</html>

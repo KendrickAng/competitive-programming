@@ -1,0 +1,31 @@
+This problem is just about binary-searching for an answer in a monotonically decreasing function.
+
+We are given N items, where each item has an initial integrity (II), and an item decay (ID).
+An item's initial integrity decreases by a fixed amount given by ID each day, and becomes unusable.
+An item is still usable if its integrity is > 0; equivalently, it becomes unusable once its integrity becomes <= 0.
+We are also given I, the minimum number of items we need to ensure is still usable.
+We need to find D, the maximum number of days we can wait such that we still have at least I items still usable.
+
+Since 1 <= N <= 10^5 and 1 <= D < 5*10^18, the solution runs in O(NlogD) per test case.
+
+Be careful of long long overflows:
+1. Prefer division instead of multiplication when checking if a value of the binary search (given by mid = (lo + hi) / 2) will work.
+2. Since 1 <= ID <= 5*10^18, mid = (lo+hi)/2 may overflow. Either use an unsigned long long or use mid = lo - ((lo-hi) / 2)
+to overcome this.
+
+WA1.cpp gives WA on input 03.in because of long long overflow in calculation of item usability after a given number of days, see function isOk().
+WA2.cpp gives WA on input 02.in due to misreading of the question - assuming items are usable when integrity is 0 (integrity must be above 0), which causes an off-by-one error.
+    - see the part where threshold is being filled, threshold[i] = integrity[i] / dailyDecay[i] is incorrect
+WA3.cpp gives WA on input 01.in due to incorrect implementation of binary search (lo < hi instead of lo <= hi) - leading to off-by-one errors.
+    - inspired by https://stackoverflow.com/questions/43007995/buggy-simple-function-for-binary-search-c
+TLE1.cpp is the brute-force solution and runs in O(N*D), hence it is too slow.
+TLE2.cpp causes infinite looping in the binary search due to long long overflow when calculating (mid = (lo + hi) / 2)).
+
+There are 7 test case groups:
+01.in - small test cases, can be calculated manually
+02.in - corner cases that may WA if question is not read carefully (item is NOT USABLE when integrity == 0)
+03.in - corner cases that may cause long long overflow
+04.in - T=10, large test case, N=10^5, 1 <= ID <= II <= 1000
+05.in - T=10, large test case, N=10^5, ID=5*10^18, II=1
+06.in - T=10, large test case, N=10^5, ID=5*10^18, II=5*10^18 (T=test cases in a single input file)
+07.in - T=10, large test case, N=10^5, everything randomly generated according to problem constraints

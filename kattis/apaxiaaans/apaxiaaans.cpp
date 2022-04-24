@@ -2,18 +2,14 @@
 #include <string>
 
 int main() {
-    int p1 = 0;
-    int p2 = 0;
+    char p1;
     std::string in;
     std::string out = "";
     std::cin >> in;
-    while (p2 < in.size()) {
-        if (p1 == p2)  {
-            out.push_back(in[p1]);
-        }
-        p2++;
-        if (in[p1] != in[p2])  {
-            p1 = p2;
+    for (char c: in) {
+        if (c != p1) {
+            p1 = c;
+            out.push_back(c);
         }
     }
     std::cout << out << std::endl;
